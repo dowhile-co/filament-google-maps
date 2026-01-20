@@ -42,7 +42,7 @@
 {{--                v: "weekly",--}}
 {{--            });--}}
 {{--        </script>--}}
-        
+
         <div
             class="w-full"
             x-ignore
@@ -64,6 +64,8 @@
                         types: @js($getTypes()),
                         placeField: @js($getPlaceField()),
                         countries: @js($getCountries()),
+                        bounds: @js($getBounds()),
+                        strictBounds: @js($getStrictBounds()),
                         debug: @js($getDebug()),
                         apiKey: @js(\Cheesegrits\FilamentGoogleMaps\Helpers\MapsHelper::mapsKey()),
                         minChars: @js($getMinChars()),

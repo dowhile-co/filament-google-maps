@@ -51,6 +51,10 @@ class Geocomplete extends Field implements CanBeLengthConstrained, HasAffixActio
 
     protected Closure|array $countries = [];
 
+    protected Closure|array|null $bounds = null;
+
+    protected Closure|bool $strictBounds = false;
+
     protected Closure|bool $debug = false;
 
     protected int $minChars = 0;
@@ -345,6 +349,43 @@ class Geocomplete extends Field implements CanBeLengthConstrained, HasAffixActio
         return $this->evaluate($this->countries);
     }
 
+    /**
+     * Set geographic bounds to bias/restrict autocomplete results.
+     * Format: ['south' => lat, 'west' => lng, 'north' => lat, 'east' => lng]
+     * Or LatLngBounds-like array.
+     *
+     * @return $this
+     */
+    public function bounds(Closure|array|null $bounds): static
+    {
+        $this->bounds = $bounds;
+
+        return $this;
+    }
+
+    public function getBounds(): ?array
+    {
+        return $this->evaluate($this->bounds);
+    }
+
+    /**
+     * If set to true, the autocomplete will only return results within the bounds.
+     * Requires bounds to be set.
+     *
+     * @return $this
+     */
+    public function strictBounds(Closure|bool $strictBounds = true): static
+    {
+        $this->strictBounds = $strictBounds;
+
+        return $this;
+    }
+
+    public function getStrictBounds(): bool
+    {
+        return $this->evaluate($this->strictBounds);
+    }
+
     public function placeField(Closure|string $placeField): static
     {
         $this->placeField = $placeField;
@@ -455,10 +496,10 @@ class Geocomplete extends Field implements CanBeLengthConstrained, HasAffixActio
         $state = $this->getState();
 
         if ($this->getIsLocation()) {
-            return $state['formatted_address'];
+            return $state['formatted_address'] ?? '';
         }
 
-        return $state;
+        return $state ?? '';
     }
 
     public function minChars(int $minChars): static

@@ -10,6 +10,8 @@ export default function filamentGoogleGeocomplete({
   latLngFields,
   types,
   countries,
+  bounds,
+  strictBounds,
   isLocation,
   placeField,
   reverseGeocodeUsing,
@@ -70,9 +72,17 @@ export default function filamentGoogleGeocomplete({
 
       const geocompleteOptions = {
         fields: fields,
-        strictBounds: false,
+        strictBounds: strictBounds || false,
         types: types,
       };
+
+      // Add bounds if provided
+      if (bounds && bounds.south !== undefined && bounds.west !== undefined && bounds.north !== undefined && bounds.east !== undefined) {
+        geocompleteOptions.bounds = new google.maps.LatLngBounds(
+          new google.maps.LatLng(bounds.south, bounds.west),
+          new google.maps.LatLng(bounds.north, bounds.east)
+        );
+      }
 
       if (geoComplete) {
         window.addEventListener(
@@ -202,7 +212,23 @@ export default function filamentGoogleGeocomplete({
         }
 
         if (hasReverseGeocodeUsing) {
-          reverseGeocodeUsing(place);
+          // Convert place object to serializable format for PHP
+          const serializablePlace = {
+            ...place,
+            geometry: place.geometry ? {
+              location: {
+                lat: place.geometry.location.lat(),
+                lng: place.geometry.location.lng(),
+              },
+              viewport: place.geometry.viewport ? {
+                south: place.geometry.viewport.getSouthWest().lat(),
+                west: place.geometry.viewport.getSouthWest().lng(),
+                north: place.geometry.viewport.getNorthEast().lat(),
+                east: place.geometry.viewport.getNorthEast().lng(),
+              } : null,
+            } : null,
+          };
+          reverseGeocodeUsing(serializablePlace);
         }
       }
     },
