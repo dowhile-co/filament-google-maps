@@ -18,7 +18,7 @@ class FieldHelper
         $flatFields = $topComponent->getContainer()->getFlatFields();
 
         foreach ($topComponent->getContainer()->getComponents() as $component) {
-            foreach ($component->getChildComponentContainers() as $container) {
+            foreach (static::getChildSchemas($component) as $container) {
                 if ($container->isHidden()) {
                     continue;
                 }
@@ -40,5 +40,25 @@ class FieldHelper
         }
 
         return null;
+    }
+
+    /**
+     * @return array<int, mixed>
+     */
+    private static function getChildSchemas(mixed $component): array
+    {
+        if (! is_object($component)) {
+            return [];
+        }
+
+        if (method_exists($component, 'getChildSchemas')) {
+            return $component->getChildSchemas();
+        }
+
+        if (method_exists($component, 'getChildComponentContainers')) {
+            return $component->getChildComponentContainers();
+        }
+
+        return [];
     }
 }

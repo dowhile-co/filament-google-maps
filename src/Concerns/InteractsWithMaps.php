@@ -27,7 +27,7 @@ trait InteractsWithMaps
                 return true;
             }
 
-            foreach ($component->getChildComponentContainers() as $childComponentContainer) {
+            foreach ($this->getChildSchemas($component) as $childComponentContainer) {
                 if ($childComponentContainer->isHidden()) {
                     continue;
                 }
@@ -61,7 +61,7 @@ trait InteractsWithMaps
                 return true;
             }
 
-            foreach ($component->getChildComponentContainers() as $childComponentContainer) {
+            foreach ($this->getChildSchemas($component) as $childComponentContainer) {
                 if ($childComponentContainer->isHidden()) {
                     continue;
                 }
@@ -73,5 +73,25 @@ trait InteractsWithMaps
         }
 
         return false;
+    }
+
+    /**
+     * @return array<int, mixed>
+     */
+    protected function getChildSchemas(mixed $component): array
+    {
+        if (! is_object($component)) {
+            return [];
+        }
+
+        if (method_exists($component, 'getChildSchemas')) {
+            return $component->getChildSchemas();
+        }
+
+        if (method_exists($component, 'getChildComponentContainers')) {
+            return $component->getChildComponentContainers();
+        }
+
+        return [];
     }
 }
